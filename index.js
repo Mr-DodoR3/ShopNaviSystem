@@ -31,20 +31,27 @@ document.getElementById('update_button').addEventListener("click", e => {
   
   if (!(isNaN(x)) && !(isNaN(y)) && !(x == "") && !(y == "")) {
     if (x >= 0 && x < mapdata[0].length && y >= 0 && y < mapdata.length) {
-      user.x = x;
-      user.y = y;
-      user.d = d;
+      user.x = Number(x);
+      user.y = Number(y);
+      user.d = Number(d);
       update_now_status();
     }
   }
 });
 
+document.getElementById('next_button').addEventListener("click", e => {
+  if (!(destinationData.name == "none")) {
+
+  }
+});
+
 document.getElementById('search_button').addEventListener("click", e => {
   const select = document.getElementById("select_merchandise").value;
-  console.log("検索:" + merchandise_list[select]);
+  // console.log("検索:" + merchandise_list[select]);
 
   let merchandisePos = [];
   let merchandisePosSet = function(j, i, d) { merchandisePos.push([j, i, d]); }
+  // console.log(merchandisePos);
   let destination = [];
   for(let i = 0; i < mapdata.length; i++) {
     for(let j = 0; j < mapdata[i].length; j++) {
@@ -58,9 +65,13 @@ document.getElementById('search_button').addEventListener("click", e => {
           }
         });
       }
+      else if (select == 92 && mapdata[i][j] == 2) {
+        merchandisePosSet(j, i, 2);
+        destination.push([j, i+1]);
+      }
     }
   }
-  console.log(destination);
+  // console.log(destination);
 
   let min_route = null;
   let min_distance = 9999;
@@ -77,19 +88,20 @@ document.getElementById('search_button').addEventListener("click", e => {
     let queue = [];
     queue.push({ x : user.x, y : user.y });
     route[user.y][user.x] = 0;
-    console.log("mapdata:" + mapdata[0].length)
-    while (route[goal.y][goal.x] == -1 && queue.length > 0) {
+    // console.log("mapdata:" + mapdata[0].length)
+    while (route[goal.y][goal.x] == -1) { // && queue.length > 0
       tx = queue[0].x;
       ty = queue[0].y;
-      if (ty - 1 >= 0) { if (route[ty-1][tx] == -1 && !(isNaN(mapdata[ty-1][tx]))) { search=true; route[ty-1][tx] = route[ty][tx]+1; queue.push({ x : tx, y : ty-1 }); }}
-      if (ty + 1 < mapdata.length) { if (route[ty+1][tx] == -1 && !(isNaN(mapdata[ty+1][tx]))) { search=true; route[ty+1][tx] = route[ty][tx]+1; queue.push({ x : tx, y : ty+1 }); }}
-      if (tx - 1 >= 0) { if (route[ty][tx-1] == -1 && !(isNaN(mapdata[ty][tx-1]))) { search=true; route[ty][tx-1] = route[ty][tx]+1; queue.push({ x : tx-1, y : ty }); }}
-      if (tx + 1 < mapdata[0].length) { if (route[ty][tx+1] == -1 && !(isNaN(mapdata[ty][tx+1]))) { search=true; route[ty][tx+1] = route[ty][tx]+1; queue.push({ x : tx+1, y : ty }); }}
+      if (ty - 1 >= 0) { if (route[ty-1][tx] == -1 && !(isNaN(mapdata[ty-1][tx]))) { route[ty-1][tx] = route[ty][tx]+1; queue.push({ x : tx, y : ty-1 }); }}
+      if (ty + 1 < mapdata.length) { if (route[ty+1][tx] == -1 && !(isNaN(mapdata[ty+1][tx]))) { route[ty+1][tx] = route[ty][tx]+1; queue.push({ x : tx, y : ty+1 }); }}
+      if (tx - 1 >= 0) { if (route[ty][tx-1] == -1 && !(isNaN(mapdata[ty][tx-1]))) { route[ty][tx-1] = route[ty][tx]+1; queue.push({ x : tx-1, y : ty }); }}
+      if (tx + 1 < mapdata[0].length) { if (route[ty][tx+1] == -1 && !(isNaN(mapdata[ty][tx+1]))) { route[ty][tx+1] = route[ty][tx]+1; queue.push({ x : tx+1, y : ty }); }}
       queue.shift();
     }
-    console.log(route);
+    // console.log(route);
     if (route[goal.y][goal.x] < min_distance) {
       min_route = route;
+      min_distance = route[goal.y][goal.x];
       confirm_num = counter;
     }
 
@@ -202,7 +214,7 @@ function createMerchandise_list() {
   });
   merchandise_list = Array.from(new Set(merchandise_list));
   create_selectBox(merchandise_list);
-  console.log(merchandise_list);
+  // console.log(merchandise_list);
 }
 
 function csv_data(dataPath) {
@@ -219,7 +231,7 @@ function csv_data(dataPath) {
       return result;
     })(response);
     load = true;
-    console.log(mapdata);
+    // console.log(mapdata);
 
     arrow = arrowReset();
     
