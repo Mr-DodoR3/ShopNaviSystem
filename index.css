@@ -25,6 +25,11 @@
   width: 75px;
 }
 
+#nowPos_button {
+  height: 36px;
+  margin-right: 12px;
+}
+
 #update_button {
   height: 36px;
 }

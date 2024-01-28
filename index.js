@@ -24,6 +24,15 @@ var destinationData = {
   d : -1,
 }
 
+document.getElementById('nowPos_button').addEventListener("click", e => {
+  const x = document.getElementById("update_x");
+  const y = document.getElementById("update_y");
+  const d = document.getElementById("update_d");
+  x.value = user.x;
+  y.value = user.y;
+  d.value = user.d;
+});
+
 document.getElementById('update_button').addEventListener("click", e => {
   const x = document.getElementById("update_x").value;
   const y = document.getElementById("update_y").value;
@@ -41,8 +50,24 @@ document.getElementById('update_button').addEventListener("click", e => {
 
 document.getElementById('next_button').addEventListener("click", e => {
   if (!(destinationData.name == "none")) {
-
+    if (arrow[user.y][user.x] == "↑") {
+      if (!(arrow[user.y-1][user.x] == "○")) user.y--;
+      user.d = 0;
+    }
+    else if (arrow[user.y][user.x] == "→") {
+      if (!(arrow[user.y][user.x+1] == "○")) user.x++;
+      user.d = 1;
+    }
+    else if (arrow[user.y][user.x] == "↓") {
+      if (!(arrow[user.y+1][user.x] == "○")) user.y++;
+      user.d = 2;
+    }
+    else if (arrow[user.y][user.x] == "←") {
+      if (!(arrow[user.y][user.x-1] == "○")) user.x--;
+      user.d = 3;
+    }
   }
+  guide();
 });
 
 document.getElementById('search_button').addEventListener("click", e => {
@@ -146,6 +171,7 @@ document.getElementById('search_button').addEventListener("click", e => {
   destinationData.d = merchandisePos[confirm_num][2];
   console.log(min_route)
   console.log(arrow)
+  guide();
 });
 
 function directionEncrypt(c) {
@@ -176,6 +202,56 @@ function arrowReset() {
 function update_now_status() {
   let nst = document.getElementById("now_status");
   nst.innerText = "現在のステータス X座標:" + user.x + ", Y座標:" + user.y + ", 進行方向:" + directionComposition(user.d);
+}
+
+function arriveCheck(c) {
+  console.log(c)
+  if (c == 0) {
+    if (arrow[user.y - 1][user.x] == "○") return true;
+    else return false;
+  }
+  if (c == 1) {
+    if (arrow[user.y][user.x + 1] == "○") return true;
+    else return false;
+  }
+  if (c == 2) {
+    if (arrow[user.y + 1][user.x] == "○") return true;
+    else return false;
+  }
+  if (c == 3) {
+    if (arrow[user.y][user.x - 1] == "○") return true;
+    else return false;
+  }
+  return false;
+}
+
+function guide() {
+  let arrowToNum = (c => {
+    if (c == "↑") return 0;
+    if (c == "→") return 1;
+    if (c == "↓") return 2;
+    if (c == "←") return 3;
+  });
+
+  let disp_text = "誘導:";
+  if (arrowToNum(arrow[user.y][user.x]) == user.d) {
+    if (arriveCheck(user.d)) disp_text += "前方に商品があります。";
+    else disp_text += "そのまま直進してください。";
+  }
+  else if (arrowToNum(arrow[user.y][user.x]) == user.d + 1 || (arrowToNum(arrow[user.y][user.x]) == 0 && user.d == 3)) {
+    if (arriveCheck(user.d+1 > 3 ? 0 : user.d+1)) disp_text += "右手に商品があります。";
+    else disp_text += "右折して直進してください。";
+  }
+  else if (arrowToNum(arrow[user.y][user.x]) == user.d - 1 || (arrowToNum(arrow[user.y][user.x]) == 3 && user.d == 0)) {
+    if (arriveCheck(user.d-1 < 0 ? 3 : user.d-1)) disp_text += "左手に商品があります。";
+    else disp_text += "左折して直進してください。";
+  }
+  else {
+    disp_text += "反転してください。";
+  }
+
+  let guide = document.getElementById("guide");
+  guide.innerText = disp_text;
 }
 
 function create_selectBox(arr) {
