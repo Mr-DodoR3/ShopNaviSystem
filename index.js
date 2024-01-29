@@ -51,18 +51,22 @@ document.getElementById('update_button').addEventListener("click", e => {
 document.getElementById('next_button').addEventListener("click", e => {
   if (!(destinationData.name == "none")) {
     if (arrow[user.y][user.x] == "↑") {
-      if (!(arrow[user.y-1][user.x] == "○")) user.y--;
+      arrow[user.y][user.x] = "-"
+      if (!(arrow[user.y-1][user.x] == "○")) {user.y--;}
       user.d = 0;
     }
     else if (arrow[user.y][user.x] == "→") {
+      arrow[user.y][user.x] = "-"
       if (!(arrow[user.y][user.x+1] == "○")) user.x++;
       user.d = 1;
     }
     else if (arrow[user.y][user.x] == "↓") {
+      arrow[user.y][user.x] = "-"
       if (!(arrow[user.y+1][user.x] == "○")) user.y++;
       user.d = 2;
     }
     else if (arrow[user.y][user.x] == "←") {
+      arrow[user.y][user.x] = "-"
       if (!(arrow[user.y][user.x-1] == "○")) user.x--;
       user.d = 3;
     }
@@ -174,6 +178,18 @@ document.getElementById('search_button').addEventListener("click", e => {
   guide();
 });
 
+function mousePressed() {
+  let mx = mouseX;
+  let my = mouseY;
+  mx = floor(mx / TILE_SIZE);
+  my = floor(my / TILE_SIZE);
+  
+  if (mx >= 0 && mx < mapdata[0].length && my >= 0 && my < mapdata.length) {
+    document.getElementById("update_x").value = mx;
+    document.getElementById("update_y").value = my;
+  }
+}
+
 function directionEncrypt(c) {
   if (c == "北") return 0;
   else if (c == "東") return 1;
@@ -205,7 +221,6 @@ function update_now_status() {
 }
 
 function arriveCheck(c) {
-  console.log(c)
   if (c == 0) {
     if (arrow[user.y - 1][user.x] == "○") return true;
     else return false;
@@ -225,6 +240,26 @@ function arriveCheck(c) {
   return false;
 }
 
+function checkoutCounter(c) {
+  if (c == 0) {
+    if (mapdata[user.y - 1][user.x] == "2") return true;
+    else return false;
+  }
+  if (c == 1) {
+    if (mapdata[user.y][user.x + 1] == 2) return true;
+    else return false;
+  }
+  if (c == 2) {
+    if (mapdata[user.y + 1][user.x] == 2) return true;
+    else return false;
+  }
+  if (c == 3) {
+    if (mapdata[user.y][user.x - 1] == 2) return true;
+    else return false;
+  }
+  return false;
+}
+
 function guide() {
   let arrowToNum = (c => {
     if (c == "↑") return 0;
@@ -235,18 +270,18 @@ function guide() {
 
   let disp_text = "誘導:";
   if (arrowToNum(arrow[user.y][user.x]) == user.d) {
-    if (arriveCheck(user.d)) disp_text += "前方に商品があります。";
+    if (arriveCheck(user.d)) disp_text += "前方に" + (checkoutCounter(user.d) ? "レジ" : "商品") + "があります。";
     else disp_text += "そのまま直進してください。";
   }
   else if (arrowToNum(arrow[user.y][user.x]) == user.d + 1 || (arrowToNum(arrow[user.y][user.x]) == 0 && user.d == 3)) {
-    if (arriveCheck(user.d+1 > 3 ? 0 : user.d+1)) disp_text += "右手に商品があります。";
+    if (arriveCheck(user.d+1 > 3 ? 0 : user.d+1)) disp_text += "右手に" + (checkoutCounter(user.d+1 > 3 ? 0 : user.d+1) ? "レジ" : "商品") + "があります。";
     else disp_text += "右折して直進してください。";
   }
   else if (arrowToNum(arrow[user.y][user.x]) == user.d - 1 || (arrowToNum(arrow[user.y][user.x]) == 3 && user.d == 0)) {
-    if (arriveCheck(user.d-1 < 0 ? 3 : user.d-1)) disp_text += "左手に商品があります。";
+    if (arriveCheck(user.d-1 < 0 ? 3 : user.d-1)) disp_text += "左手に" + (checkoutCounter(user.d-1 < 0 ? 3 : user.d-1) ? "レジ" : "商品") + "があります。";
     else disp_text += "左折して直進してください。";
   }
-  else {
+  else if (Math.abs(arrowToNum(arrow[user.y][user.x]) - user.d) == 2) {
     disp_text += "反転してください。";
   }
 
